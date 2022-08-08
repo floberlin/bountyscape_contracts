@@ -1052,8 +1052,8 @@
       }
     },
     "test/Bountyscape.t.sol": {
-      "lastModificationDate": 1659960819232,
-      "contentHash": "c365a59585125862f98205fb33b8e999",
+      "lastModificationDate": 1659967002099,
+      "contentHash": "deda5485087a428b724504191c7bd251",
       "sourceName": "test/Bountyscape.t.sol",
       "solcConfig": {
         "settings": {

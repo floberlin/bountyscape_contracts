@@ -11,6 +11,8 @@ contract BountyscapeTest is Test {
     BountyscapeTresuary bountyscapeTresuary;
     address internal employer;
     address internal contractor;
+    address internal contractor2;
+    address internal contractor3;
 
     function setUp() public {
         bountyscape = new Bountyscape();
@@ -28,6 +30,20 @@ contract BountyscapeTest is Test {
         vm.deal(contractor, 100 ether);
         vm.label(contractor, "contractor");
         vm.prank(contractor);
+        bountyscape.grantRoleContractor();
+
+        // set up contractor 2
+        contractor2 = vm.addr(0xB0B2);
+        vm.deal(contractor2, 100 ether);
+        vm.label(contractor2, "contractor2");
+        vm.prank(contractor2);
+        bountyscape.grantRoleContractor();
+
+        // set up contractor 3
+        contractor3 = vm.addr(0xB0B3);
+        vm.deal(contractor3, 100 ether);
+        vm.label(contractor3, "contractor3");
+        vm.prank(contractor3);
         bountyscape.grantRoleContractor();
 
         // set up contracts
@@ -107,6 +123,47 @@ contract BountyscapeTest is Test {
 
         vm.prank(contractor);
         bountyscape.claimBounty("QmIPFSID");
+
+        vm.prank(employer);
+        bountyscape.approveCompletedBounty("QmIPFSID", contractor);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(contractor, 0), 0);
+
+        vm.prank(contractor);
+        bountyscape.completeBounty("QmIPFSID");
+        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(contractor, 0), 1);
+
+        vm.prank(contractor);
+        bountyscape.claimFunds("QmIPFSID");
+        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(contractor, 0), 1);
+    }
+
+
+    function testContractorCanClaimFundsMultiple() public {
+        vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID");
+        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(contractor, 0), 0);
+
+        vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSI2");
+
+        vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID3");
+
+        vm.prank(contractor);
+        bountyscape.claimBounty("QmIPFSID");
+
+        vm.prank(contractor2);
+        bountyscape.claimBounty("QmIPFSID");
+
+        vm.prank(contractor3);
+        bountyscape.claimBounty("QmIPFSID");
+
+        vm.prank(contractor3);
+        bountyscape.claimBounty("QmIPFSID2");
 
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID", contractor);
