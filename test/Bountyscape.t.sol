@@ -140,7 +140,6 @@ contract BountyscapeTest is Test {
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
-
     function testContractorCanClaimFundsMultiple() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
@@ -203,5 +202,49 @@ contract BountyscapeTest is Test {
         bountyscape.claimFunds("QmIPFSID");
         assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
+    }
+
+
+    // positive testcases - no roles required
+
+    function testAnyoneCanListBounties() public {
+        vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID");
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID2");
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID3");
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID4");
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID5");
+        
+        bountyscape.getBounties();
+    }
+
+
+    function testAnyoneCanListBountiesAndGetStatus() public {
+        vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID");
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID2");
+        vm.prank(employer);
+        bountyscape.approveCompletedBounty("QmIPFSID2", contractor);
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID3");
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID4");
+        vm.prank(employer);
+        bountyscape.approveCompletedBounty("QmIPFSID4", contractor);
+         vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID5");
+        
+        bountyscape.getBounties();
+        
+        assertTrue(!bountyscape.getStatus("QmIPFSID"));
+        assertTrue(bountyscape.getStatus("QmIPFSID2"));
+        assertTrue(!bountyscape.getStatus("QmIPFSID3"));
+        assertTrue(bountyscape.getStatus("QmIPFSID4"));
+        assertTrue(!bountyscape.getStatus("QmIPFSID5"));
     }
 }

@@ -8,7 +8,8 @@ import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 interface Itreasury {
     function whitelist(address addr, uint256 tokenId) external;
     function withdraw(address addr, uint256 amount) external;
-    function withdrawReward(address contractor, uint256 id, uint256 amount) external;
+    function withdrawReward(address contractor, uint256 id, uint256 amount)
+        external;
 }
 
 contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
@@ -209,6 +210,19 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
     {
         uint256 _tokenID = this.getTokenID(ipfsID);
         return tokenIDtoClaimers[_tokenID];
+    }
+
+    function getBounties() public view returns (string[] memory) {
+        string[] memory result = new string[](tokenID);
+        for (uint256 j = 0; j < tokenID; j++) {
+            result[j] = tokenIDtoIPFS[j];
+        }
+        return result;
+    }
+
+    function getStatus(string memory ipfsID) public view returns (bool) {
+        uint256 _tokenID = this.getTokenID(ipfsID);
+        return tokenIDtoDone[_tokenID];
     }
 
     // Helper functions

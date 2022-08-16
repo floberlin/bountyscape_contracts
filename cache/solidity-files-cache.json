@@ -863,7 +863,7 @@
       }
     },
     "script/Bountyscape.s.sol": {
-      "lastModificationDate": 1659946036607,
+      "lastModificationDate": 1660032577494,
       "contentHash": "3642d05d9c479368231825c40aaa276a",
       "sourceName": "script/Bountyscape.s.sol",
       "solcConfig": {
@@ -906,7 +906,7 @@
       }
     },
     "script/BountyscapeTresuary.s.sol": {
-      "lastModificationDate": 1659946033204,
+      "lastModificationDate": 1660032577494,
       "contentHash": "3642d05d9c479368231825c40aaa276a",
       "sourceName": "script/BountyscapeTresuary.s.sol",
       "solcConfig": {
@@ -949,8 +949,8 @@
       }
     },
     "src/Bountyscape.sol": {
-      "lastModificationDate": 1659960847262,
-      "contentHash": "f1503f30a11f27e2be40bfa92a10bf89",
+      "lastModificationDate": 1660033254686,
+      "contentHash": "fbc38350986518505e7bb231c3767113",
       "sourceName": "src/Bountyscape.sol",
       "solcConfig": {
         "settings": {
@@ -1003,7 +1003,7 @@
       }
     },
     "src/BountyscapeTresuary.sol": {
-      "lastModificationDate": 1659960819230,
+      "lastModificationDate": 1660032577494,
       "contentHash": "2971af5d92f3c799ce29cb7be48af342",
       "sourceName": "src/BountyscapeTresuary.sol",
       "solcConfig": {
@@ -1052,8 +1052,8 @@
       }
     },
     "test/Bountyscape.t.sol": {
-      "lastModificationDate": 1659967002099,
-      "contentHash": "deda5485087a428b724504191c7bd251",
+      "lastModificationDate": 1660033185993,
+      "contentHash": "e49339ca04302a9713438ea15fdff980",
       "sourceName": "test/Bountyscape.t.sol",
       "solcConfig": {
         "settings": {
