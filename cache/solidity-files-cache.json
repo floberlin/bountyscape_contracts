@@ -949,8 +949,8 @@
       }
     },
     "src/Bountyscape.sol": {
-      "lastModificationDate": 1660033254686,
-      "contentHash": "fbc38350986518505e7bb231c3767113",
+      "lastModificationDate": 1660820844917,
+      "contentHash": "75aa0c4eaf814f9e5a5fc3f118707c7c",
       "sourceName": "src/Bountyscape.sol",
       "solcConfig": {
         "settings": {
@@ -992,7 +992,7 @@
         "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol"
       ],
-      "versionRequirement": null,
+      "versionRequirement": ">=0.8.6",
       "artifacts": {
         "Bountyscape": {
           "0.8.15+commit.e14f2714.Darwin.appleclang": "Bountyscape.sol/Bountyscape.json"
@@ -1002,10 +1002,10 @@
         }
       }
     },
-    "src/BountyscapeTresuary.sol": {
-      "lastModificationDate": 1660032577494,
-      "contentHash": "2971af5d92f3c799ce29cb7be48af342",
-      "sourceName": "src/BountyscapeTresuary.sol",
+    "src/BountyscapeTreasury.sol": {
+      "lastModificationDate": 1660820863546,
+      "contentHash": "9ce2712b66a8c6b387abd6d0738a3d15",
+      "sourceName": "src/BountyscapeTreasury.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -1044,16 +1044,16 @@
       "versionRequirement": null,
       "artifacts": {
         "Bountyscape": {
-          "0.8.15+commit.e14f2714.Darwin.appleclang": "BountyscapeTresuary.sol/Bountyscape.json"
+          "0.8.15+commit.e14f2714.Darwin.appleclang": "BountyscapeTreasury.sol/Bountyscape.json"
         },
-        "BountyscapeTresuary": {
-          "0.8.15+commit.e14f2714.Darwin.appleclang": "BountyscapeTresuary.sol/BountyscapeTresuary.json"
+        "BountyscapeTreasury": {
+          "0.8.15+commit.e14f2714.Darwin.appleclang": "BountyscapeTreasury.sol/BountyscapeTreasury.json"
         }
       }
     },
     "test/Bountyscape.t.sol": {
-      "lastModificationDate": 1660033185993,
-      "contentHash": "e49339ca04302a9713438ea15fdff980",
+      "lastModificationDate": 1660820811051,
+      "contentHash": "3310a6df7570e9970950c686c432f271",
       "sourceName": "test/Bountyscape.t.sol",
       "solcConfig": {
         "settings": {
@@ -1104,7 +1104,7 @@
         "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "src/Bountyscape.sol",
-        "src/BountyscapeTresuary.sol"
+        "src/BountyscapeTreasury.sol"
       ],
       "versionRequirement": "^0.8.13",
       "artifacts": {

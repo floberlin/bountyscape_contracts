@@ -7,7 +7,7 @@ pub mod access_control;
 pub mod address;
 pub mod bountyscape;
 pub mod bountyscape_test;
-pub mod bountyscape_tresuary;
+pub mod bountyscape_treasury;
 pub mod console;
 pub mod console_2;
 pub mod context;

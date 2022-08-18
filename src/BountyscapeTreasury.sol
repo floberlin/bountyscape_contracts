@@ -15,8 +15,10 @@ interface Bountyscape {
         external;
 }
 
-contract BountyscapeTresuary is ERC1155Holder, Ownable {
-    address public BountyscapeAddr;
+contract BountyscapeTreasury is ERC1155Holder, Ownable {
+    // address public BountyscapeAddr;
+    address public immutable BountyscapeAddr = 0x8cB3c3931365d372Ef6bD1297658d433d7A198e4;
+
 
     mapping(uint256 => address) public addressIdMapping;
 
@@ -26,9 +28,9 @@ contract BountyscapeTresuary is ERC1155Holder, Ownable {
 
     receive() external payable {}
 
-    function setBountyscape(address addr) public onlyOwner {
-        BountyscapeAddr = addr;
-    }
+    // function setBountyscape(address addr) public onlyOwner {
+    //     BountyscapeAddr = addr;
+    // }
 
     function withdraw(address addr, uint256 id) public payable {
         require(addr == addressIdMapping[id], "Caller is not whitelisted!");

@@ -4,11 +4,11 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {Bountyscape} from "../src/Bountyscape.sol";
-import {BountyscapeTresuary} from "../src/BountyscapeTresuary.sol";
+import {BountyscapeTreasury} from "../src/BountyscapeTreasury.sol";
 
 contract BountyscapeTest is Test {
     Bountyscape bountyscape;
-    BountyscapeTresuary bountyscapeTresuary;
+    BountyscapeTreasury bountyscapeTresuary;
     address internal employer;
     address internal contractor;
     address internal contractor2;
@@ -16,7 +16,7 @@ contract BountyscapeTest is Test {
 
     function setUp() public {
         bountyscape = new Bountyscape();
-        bountyscapeTresuary = new BountyscapeTresuary();
+        bountyscapeTresuary = new BountyscapeTreasury();
 
         // set up employer
         employer = vm.addr(0xA11CE);
@@ -48,7 +48,7 @@ contract BountyscapeTest is Test {
 
         // set up contracts
         bountyscape.setContract(address(bountyscapeTresuary));
-        bountyscapeTresuary.setBountyscape(address(bountyscape));
+        //bountyscapeTresuary.setBountyscape(address(bountyscape));
     }
 
     // Empolyer positive testcases
@@ -61,7 +61,8 @@ contract BountyscapeTest is Test {
     function testEmployerCanCreatePrivateBounty() public {
         vm.prank(employer);
         bountyscape.createPrivateBounty{value: 1 ether}(
-            "QmIPFSIDPrivate", contractor
+            "QmIPFSIDPrivate",
+            contractor
         );
         assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
     }
@@ -180,6 +181,22 @@ contract BountyscapeTest is Test {
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
+    function testContractorCanClaimFundsEmpolyerCanBurnMultiple() public {
+        vm.prank(employer);
+        bountyscape.createBounty{value: 1 ether}("QmIPFSID");
+        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(contractor, 0), 0);
+
+        vm.prank(contractor);
+        bountyscape.claimBounty("QmIPFSID");
+
+        vm.prank(contractor2);
+        bountyscape.claimBounty("QmIPFSID");
+
+        vm.prank(employer);
+        bountyscape.deleteBounty("QmIPFSID");
+    }
+
     // Contractor negative testcases
 
     function testFailContractorCanClaimFundsNOCLAIM() public {
@@ -204,43 +221,41 @@ contract BountyscapeTest is Test {
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
-
     // positive testcases - no roles required
 
     function testAnyoneCanListBounties() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID2");
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID3");
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID4");
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID5");
-        
+
         bountyscape.getBounties();
     }
-
 
     function testAnyoneCanListBountiesAndGetStatus() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID2");
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID2", contractor);
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID3");
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID4");
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID4", contractor);
-         vm.prank(employer);
+        vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID5");
-        
+
         bountyscape.getBounties();
-        
+
         assertTrue(!bountyscape.getStatus("QmIPFSID"));
         assertTrue(bountyscape.getStatus("QmIPFSID2"));
         assertTrue(!bountyscape.getStatus("QmIPFSID3"));
