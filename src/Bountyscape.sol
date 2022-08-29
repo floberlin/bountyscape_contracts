@@ -18,9 +18,18 @@ interface Itreasury {
     ) external;
 }
 
+interface Ibsttoken {
+    function balanceOf(address account) external view returns (uint256);
+    function transferFrom(address sender,address receiver, uint256 amount) external; 
+    function approve(address sender, uint256 amount) external;
+}
+
 contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
+
+
     string private _uri; // URI of the token
     address public treasury = address(0); // treasury contract address
+    address public bstoken = address(0); // bountyscape token address
     uint256 public tokenID = 0; // token ID of the token to be minted
     bytes32 public constant EMPLOYER_ROLE = keccak256("EMPLOYER_ROLE"); // role of the employer
     bytes32 public constant CONTRACTOR_ROLE = keccak256("CONTRACTOR_ROLE"); // contractor is the role of the employee who is working for the employer.
@@ -40,12 +49,14 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
     event BountyCancelled(string _ipfsID, uint256 _tokenID, uint256 _reward); // event for when a Bounty is cancelled
     event PermanentURI(string _value, uint256 indexed _id); // event for when a permanent URI is set
 
-    constructor()
+    constructor(address addr1, address addr2)
         ERC1155(
             "https://ipfs.io/ipns/k51qzi5uqu5diitbr0kyw2jut5z6d06hm923t1mqaygudw4zf2u1ocbip88ieq/{id}.json"
         )
     {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        treasury = addr1;
+        bstoken = addr2;
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -101,21 +112,6 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
      *
      */
 
-    // start of access control definitions
-    function setContract(address addr) public {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
-            "Caller is not the admin"
-        );
-        treasury = addr;
-    }
-
-    // end of access control definitions
-
-    /**
-     *
-     */
-
     // main functions
 
     function createBounty(string memory ipfsID) public payable {
@@ -133,6 +129,8 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
         emit BountyCreated(ipfsID, tokenID, reward);
         emit PermanentURI(tokenURI(tokenID), tokenID);
         tokenID++;
+        Ibsttoken(bstoken).approve(address(this), 1000000000000000000);
+        Ibsttoken(bstoken).transferFrom(address(this),msg.sender, 1000000000000000000);
     }
 
     function createPrivateBounty(string memory ipfsID, address contractor)
@@ -222,6 +220,8 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
             "Bounty completion is not approved by the employer"
         );
         Itreasury(treasury).withdraw(msg.sender, _tokenID);
+         Ibsttoken(bstoken).approve(address(this), 5000000000000000000);
+        Ibsttoken(bstoken).transferFrom(address(this), msg.sender, 5000000000000000000);
         emit BountyCompleted(
             tokenIDtoIPFS[_tokenID],
             _tokenID,
@@ -249,8 +249,22 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
             "You have not completed the Bounty yet"
         );
         uint256 reward = tokenIDtoReward[_tokenID];
-        uint256 fee = 2; // 2% fee
-        uint256 feeAmount = ((reward * fee) / 100); // 2% fee
+        uint256 balance = Ibsttoken(bstoken).balanceOf(msg.sender);
+        uint256 fee = 250;
+        if (balance >= 25000000000000000000) {
+             fee = 200; // 2% fee
+        } else if (balance >= 100000000000000000000) {
+             fee = 175; // 1.75% fee
+        } else if (balance >= 300000000000000000000) {
+             fee = 150; // 1.5% fee
+        } else if (balance >= 500000000000000000000) {
+             fee = 125; // 1.75% fee
+        } else if (balance >= 1000000000000000000000) {
+             fee = 100; // 1% fee
+        } else {
+             fee = 250;
+        }
+        uint256 feeAmount = ((reward * fee) / 10000); // dyn fee
         uint256 claimable = (reward - feeAmount); // reward - fee
         Itreasury(treasury).withdrawReward(msg.sender, _tokenID, claimable);
     }
@@ -259,6 +273,26 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
         require(hasRole(EMPLOYER_ROLE, msg.sender), "Caller is not a employer");
         uint256 _tokenID = this.getTokenID(ipfsID);
         require(balanceOf(treasury, _tokenID) >= 1, "Bounty not available");
+        uint256 reward = tokenIDtoReward[_tokenID];
+        uint256 balance = Ibsttoken(bstoken).balanceOf(msg.sender);
+        uint256 fee = 250; // 2.5% fee
+        if (balance >= 25000000000000000000) {
+             fee = 200; // 2% fee
+        } else if (balance >= 100000000000000000000) {
+             fee = 175; // 1.75% fee
+        } else if (balance >= 300000000000000000000) {
+             fee = 150; // 1.5% fee
+        } else if (balance >= 500000000000000000000) {
+             fee = 125; // 1.75% fee
+        } else if (balance >= 1000000000000000000000) {
+             fee = 100; // 1% fee
+        } else {
+             fee = 250; // 2.5% fee
+        }
+        uint256 feeAmount = ((reward * fee) / 10000); // dyn fee
+        uint256 claimable = (reward - feeAmount); // reward - fee
+        Itreasury(treasury).whitelist(msg.sender, _tokenID);
+        Itreasury(treasury).withdrawReward(msg.sender, _tokenID, claimable);
         _burn(treasury, _tokenID, 1);
     }
 
@@ -322,7 +356,7 @@ contract Bountyscape is ERC1155, AccessControl, ReentrancyGuard {
 
     function addressToString(address account)
         public
-        view
+        pure
         returns (string memory)
     {
         uint256 i = uint256(uint160(address(account)));

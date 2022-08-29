@@ -5,18 +5,28 @@ import "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {Bountyscape} from "../src/Bountyscape.sol";
 import {BountyscapeTreasury} from "../src/BountyscapeTreasury.sol";
+import {BountyscapeToken} from "../src/BountyscapeToken.sol";
 
 contract BountyscapeTest is Test {
     Bountyscape bountyscape;
-    BountyscapeTreasury bountyscapeTresuary;
+    BountyscapeTreasury bountyscapeTreasury;
+    BountyscapeToken bountyscapeToken;
     address internal employer;
+    address internal deployer;
     address internal contractor;
     address internal contractor2;
     address internal contractor3;
 
     function setUp() public {
-        bountyscape = new Bountyscape();
-        bountyscapeTresuary = new BountyscapeTreasury();
+       
+        bountyscapeTreasury = new BountyscapeTreasury();
+        deployer = vm.addr(0xDe);
+        vm.deal(deployer, 100 ether);
+        vm.label(deployer, "deployer");
+        vm.prank(deployer);
+        bountyscapeToken = new BountyscapeToken();
+
+        bountyscape = new Bountyscape(address(bountyscapeTreasury), address(bountyscapeToken));
 
         // set up employer
         employer = vm.addr(0xA11CE);
@@ -47,15 +57,19 @@ contract BountyscapeTest is Test {
         bountyscape.grantRoleContractor();
 
         // set up contracts
-        bountyscape.setContract(address(bountyscapeTresuary));
-        //bountyscapeTresuary.setBountyscape(address(bountyscape));
+        vm.prank(deployer);
+        bountyscapeToken.approve(deployer, 10000000000000000000000000);
+        vm.prank(deployer);
+        bountyscapeToken.transferFrom(deployer, address(bountyscape), 10000000000000000000000000);
+
+        bountyscapeTreasury.setBountyscape(address(bountyscape));
     }
 
     // Empolyer positive testcases
     function testEmployerCanCreateBounty() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
     }
 
     function testEmployerCanCreatePrivateBounty() public {
@@ -64,7 +78,7 @@ contract BountyscapeTest is Test {
             "QmIPFSIDPrivate",
             contractor
         );
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
     }
 
     function testEmployerCanApproveCompletedBounty() public {
@@ -99,7 +113,7 @@ contract BountyscapeTest is Test {
     function testContractorCompleteBounty() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
@@ -107,19 +121,19 @@ contract BountyscapeTest is Test {
 
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID", contractor);
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
         bountyscape.completeBounty("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
     function testContractorCanClaimFunds() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
@@ -127,24 +141,24 @@ contract BountyscapeTest is Test {
 
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID", contractor);
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
         bountyscape.completeBounty("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
 
         vm.prank(contractor);
         bountyscape.claimFunds("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
     function testContractorCanClaimFundsMultiple() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(employer);
@@ -167,24 +181,24 @@ contract BountyscapeTest is Test {
 
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID", contractor);
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
         bountyscape.completeBounty("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
 
         vm.prank(contractor);
         bountyscape.claimFunds("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
     function testContractorCanClaimFundsEmpolyerCanBurnMultiple() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
@@ -202,22 +216,22 @@ contract BountyscapeTest is Test {
     function testFailContractorCanClaimFundsNOCLAIM() public {
         vm.prank(employer);
         bountyscape.createBounty{value: 1 ether}("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(employer);
         bountyscape.approveCompletedBounty("QmIPFSID", contractor);
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 1);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 1);
         assertEq(bountyscape.balanceOf(contractor, 0), 0);
 
         vm.prank(contractor);
         bountyscape.completeBounty("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
 
         vm.prank(contractor);
         bountyscape.claimFunds("QmIPFSID");
-        assertEq(bountyscape.balanceOf(address(bountyscapeTresuary), 0), 0);
+        assertEq(bountyscape.balanceOf(address(bountyscapeTreasury), 0), 0);
         assertEq(bountyscape.balanceOf(contractor, 0), 1);
     }
 
