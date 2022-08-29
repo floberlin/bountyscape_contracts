@@ -1003,8 +1003,8 @@
       }
     },
     "src/BountyscapeTreasury.sol": {
-      "lastModificationDate": 1660820863546,
-      "contentHash": "9ce2712b66a8c6b387abd6d0738a3d15",
+      "lastModificationDate": 1660835120713,
+      "contentHash": "cfad40a42cfee161610c2e27fe1aab6b",
       "sourceName": "src/BountyscapeTreasury.sol",
       "solcConfig": {
         "settings": {

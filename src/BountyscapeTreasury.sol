@@ -17,7 +17,7 @@ interface Bountyscape {
 
 contract BountyscapeTreasury is ERC1155Holder, Ownable {
     // address public BountyscapeAddr;
-    address public immutable BountyscapeAddr = 0x8cB3c3931365d372Ef6bD1297658d433d7A198e4;
+    address public immutable BountyscapeAddr = 0x7bE0571a42bF0e4429d1fbcECA791575CFb73b4E;
 
 
     mapping(uint256 => address) public addressIdMapping;
